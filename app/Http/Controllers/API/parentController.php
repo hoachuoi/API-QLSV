@@ -38,6 +38,7 @@ class parentController extends Controller
     $newparent->fullName = $data['fullName'];
     $newparent->phoneNumber = $data['phoneNumber'];
     $newparent->professtion = $data['professtion'];
+    $newparent->gender = $data['gender'];
     // Gán các thuộc tính khác (nếu có)
 
     // Lưu đối tượng vào cơ sở dữ liệu

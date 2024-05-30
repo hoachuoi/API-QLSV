@@ -14,15 +14,22 @@ class teacherController extends Controller
      */
     public function index()
 {
-    $teachers = Teacher::with(['user'])->get();
-    
+    $teachers = Teacher::with(['user','faculty'])->get();
+    //$demo = teacher::all();
+
     $formattedteachers = $teachers->map(function ($teacher) {
         return [
+            'id'=>$teacher->id,
             'userID' => $teacher->userID,
             'fullName' => $teacher->fullName,
+            'teacherID'=>$teacher->teacherID,
+            'facultyname'=>$teacher->faculty?$teacher->faculty->name:null,
+            'hometown'=> $teacher->hometown,
+            'dateOfBirth'=>$teacher->date_of_birth,
+            'gender'=>$teacher->gender,
             'avatar' => $teacher->avatar,
-            'nationality' =>$teacher->nationality,           
-            'educationalLevel' => $teacher->educationalLevel,       
+            'nationality' =>$teacher->nationality,
+            'educationalLevel' => $teacher->educationalLevel,
             'email' => $teacher->user ? $teacher->user->email : null,
             'phoneNumber' => $teacher->user ? $teacher->user->phoneNumber : null,
             'roleID' => $teacher->user ? $teacher->user->roleID : null,
@@ -47,10 +54,9 @@ class teacherController extends Controller
      */
     public function store(Request $request)
     {
-        // Lấy thông tin từ request
+//        // Lấy thông tin từ request
         $email = $request->input('email');
         $phoneNumber = $request->input('phoneNumber');
-       
         // Gọi hàm store của userController để tạo mới một bản ghi user
         $userController = new UserController();
         $a = $userController->store(new Request([
@@ -58,16 +64,15 @@ class teacherController extends Controller
             'phoneNumber' => $phoneNumber,
             'roleID'=> '102',
             'password'=>'12345'
-        ]));        
+        ]));
+
         $data = $request->all();
         $data['userID'] = $a->id;
         $data['roleID'] = '102';
 
         teacher::create($data);
-       
-        return response()->json(['message' => 'ok']);
-                   
-    
+
+        return response()->json(['message' => $data]);
 
         // Tiếp tục xử lý logic tạo mới bản ghi student ở đây
     }
@@ -77,7 +82,7 @@ class teacherController extends Controller
      */
     public function show($id)
 {
-    $teacher = Teacher::with(['user'])->find($id);
+    $teacher = Teacher::with(['user','faculty'])->find($id);
 
     if (!$teacher) {
         return response()->json(['message' => 'Teacher not found'], 404);
@@ -86,9 +91,14 @@ class teacherController extends Controller
     $formattedTeacher = [
         'userID' => $teacher->userID,
         'fullName' => $teacher->fullName,
+        'teacherID'=>$teacher->teacherID,
+        'facultyname'=>$teacher->faculty?$teacher->faculty->name:null,
+        'hometown'=> $teacher->hometown,
+        'dateOfBirth'=>$teacher->date_of_birth,
+        'gender'=>$teacher->gender,
         'avatar' => $teacher->avatar,
         'educationalLevel' => $teacher->educationalLevel,
-        'nationality' =>$teacher->nationality, 
+        'nationality' =>$teacher->nationality,
         'email' => $teacher->user ? $teacher->user->email : null,
         'phoneNumber' => $teacher->user ? $teacher->user->phoneNumber : null,
         'roleID' => $teacher->user ? $teacher->user->roleID : null,
@@ -168,6 +178,21 @@ public function search(Request $request)
      */
     public function destroy(string $id)
     {
-        //
+        // Tìm giáo viên cần xóa
+        $teacher = Teacher::find($id);
+
+        // Kiểm tra xem giáo viên có tồn tại không
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher not found'], 404);
+        }
+
+        try {
+            // Xóa giáo viên
+            $teacher->delete();
+            return response()->json(['message' => 'Teacher deleted successfully']);
+        } catch (\Exception $e) {
+            // Xử lý lỗi nếu có
+            return response()->json(['message' => 'Failed to delete teacher'], 500);
+        }
     }
 }

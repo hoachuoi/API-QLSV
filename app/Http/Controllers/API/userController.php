@@ -39,7 +39,7 @@ class userController extends Controller
     // public function create()
     // {
     //     //
-        
+
     // }
 
     /**
@@ -52,7 +52,7 @@ class userController extends Controller
         return user1::create($data);
 
     }
-  
+
 
     /**
      * Display the specified resource.
@@ -114,22 +114,22 @@ public function show(string $id)
     public function update(Request $request, $id)
     {
         $user = User1::find($id);
-    
+
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
-        }    
+        }
         // Lấy dữ liệu từ request và cập nhật thông tin người dùng
         $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->phoneNumber = $request->input('phoneNumber');
         $user->password = $request->input('password');
-        $user->roleID = $request->input('roleID');    
+        $user->roleID = $request->input('roleID');
         // Lưu các thay đổi vào cơ sở dữ liệu
         $user->save();
-    
+
         return response()->json($user);
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -146,22 +146,23 @@ public function show(string $id)
         $user->delete();
         return response()->json(['message' => 'Resource deleted successfully']);
     }
+
     public function search(Request $request)
-{
+    {
     // Lấy thông tin tìm kiếm từ yêu cầu
     $keyword = $request->input('search');
-
+    //return response()->json($keyword);
     // Thực hiện tìm kiếm trong cơ sở dữ liệu
-    $users = User1::where('id', 'like', '%' . $keyword . '%')
+    $users = User1::where('id', 'like', '%' . $keyword.'%' )
                   ->orWhere('username', 'like', '%' . $keyword . '%')
-                  ->orWhere('email', 'like', '%' . $keyword . '%')
-                  ->orWhere('phoneNumber', 'like', '%' . $keyword . '%')
-                  ->orWhere('password', 'like', '%' . $keyword . '%')
-                  ->orWhere('roleId', 'like', '%' . $keyword . '%')
-                  ->with('role')
-                  ->get();
+                   ->orWhere('email', 'like', '%' . $keyword . '%')
+                //   ->orWhere('phoneNumber', 'like', '%' . $keyword . '%')
+                //   ->orWhere('password', 'like', '%' . $keyword . '%')
+                   ->orWhere('roleId', 'like' ,'%'. $keyword . '%')
+                 ->with('role')
+                 ->get();
 
-    // Định dạng kết quả trả về
+    //Định dạng kết quả trả về
     $formattedUsers = $users->map(function ($user) {
         return [
             'id' => $user->id,
@@ -175,8 +176,8 @@ public function show(string $id)
             'roleName' => $user->role ? $user->role->roleName : null,
         ];
     });
-
     // Trả về kết quả dưới dạng JSON
     return response()->json($formattedUsers);
 }
+
 }

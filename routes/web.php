@@ -14,5 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+//    $st = \App\Models\student::find(3);
+//    dd($st->courses->toArray());
+
+    $courser = \App\Models\course::query()->find(4);
+    dd($courser->students->toArray());
     return view('welcome');
 });
