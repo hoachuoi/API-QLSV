@@ -13,10 +13,19 @@ class teacher extends Model
         'fullName',
         'educationalLevel',
         'nationality',
-        'avatar'
+        'avatar',
+        'faculty_id',
+        'teacherID',
+        'hometown',
+        'date_of_birth',
+        'gender',
     ];
     public function user()
     {
         return $this->belongsTo(user1::class, 'userID');
+    }
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class, 'faculty_id');
     }
 }
