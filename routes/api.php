@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\attendaceController;
 use App\Http\Controllers\API\courseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -63,7 +64,9 @@ Route::post('course-teacher', [courseController::class,'courseofteacher']);
 Route::get('course-of-student/{id}', [courseController::class,'courseOfStudent']);//xem cac lop cua hoc sinh
 
 
-
+//atendance
+Route::get('/course/{id}/attendance', [attendaceController::class, 'getClassAttendance']);
+Route::post('/attendance/mark', [attendaceController::class, 'markAttendance']);
 
 
 Route::post('detectFaces', [FaceDemo::class,'detectFaces']);

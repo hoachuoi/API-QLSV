@@ -20,8 +20,13 @@ class course extends Model
         'teacher_id',
         'subject_id',
         'semester_id',
-        'classroom_id'
+        'classroom_id',
+        'week'
     ];
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(student::class, 'course_students', 'course_id','student_id' );

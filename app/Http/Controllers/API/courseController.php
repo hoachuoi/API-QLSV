@@ -22,6 +22,7 @@ class courseController extends Controller
                 'id' => $course->id,
                 'name' => $course->name,
                 'ML-HP' => $course->IDcourse,
+                'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
                 'date_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
@@ -77,6 +78,7 @@ class courseController extends Controller
             'id' => $course->id,
             'name' => $course->name,
             'ML-HP' => $course->IDcourse,
+            'week'=>$course->week,
             'start' => $course->start_time,
             'end' => $course->end_time,
             'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
@@ -117,6 +119,7 @@ class courseController extends Controller
         $course->name = $request->input('name');
         $course->IDcourse = $request->input('IDcourse');
         $course->start_time = $request->input('start_time');
+        $course->week= $request->input('week');
         $course->end_time = $request->input('end_time');
         $course->day_of_week = $request->input('day_of_week');
         $course->faculty_id = $request->input('faculty_id');
@@ -147,17 +150,16 @@ class courseController extends Controller
             return [
                 'id' => $course->id,
                 'name' => $course->name,
-                'faculty_id' => $course->faculty_id,
-                'classroom_id' => $course->classroom_id,
-                'semester_id' => $course->semester_id,
-                'subject_id' => $course->subject_id,
-                'start_time' => $course->start_time,
-                'end_time' => $course->end_time,
-                'day_of_week' => $course->day_of_week,
-                'created_at' => $course->created_at,
-                'updated_at' => $course->updated_at,
-                'teacher_id' => $course->teacher_id,
-                'IDcourse' => $course->IDcourse
+                'ML-HP' => $course->IDcourse,
+                'week'=>$course->week,
+                'start' => $course->start_time,
+                'end' => $course->end_time,
+                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'faculty' => $course->faculty->name ?? null,
+                'teacher' => $course->teacher->fullName ?? null,
+                'numberOfCredits' => $course->subject->numberOfCredits ?? null,
+                'semester' => $course->semester->name ?? null,
+                'classroom' => $course->classroom->name ?? null,
             ];
         });
 
@@ -204,6 +206,7 @@ class courseController extends Controller
             return [
                 'id' => $student->id,
                 'userID' => $student->userID,
+                'studentID' => $student->studentID,
                 'fullName' => $student->fullName,
                 'gender' => $student->gender,
                 'dateOfBirth' => $student->dateOfBirth,
@@ -253,9 +256,10 @@ class courseController extends Controller
                 'id' => $course->id,
                 'name' => $course->name,
                 'ML-HP' => $course->IDcourse,
+                'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,
@@ -270,7 +274,7 @@ class courseController extends Controller
     public function courseofteacher(Request $request)
     {
         // Lấy thông tin tìm kiếm từ yêu cầu
-        $keyword = $request->input('search');
+        $keyword = $request->input('idTeacher');
 
         // Thực hiện tìm kiếm trong cơ sở dữ liệu
         $courses = Course::where('teacher_id', 'like', '%' . $keyword . '%')
@@ -283,9 +287,10 @@ class courseController extends Controller
                 'id' => $course->id,
                 'name' => $course->name,
                 'ML-HP' => $course->IDcourse,
+                'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,
