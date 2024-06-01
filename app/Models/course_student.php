@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class course_student extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'course_id',
+        'student_id',
+    ];
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

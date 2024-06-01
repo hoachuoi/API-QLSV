@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\classroom;
 use App\Models\course;
+use App\Models\course_student;
+use App\Models\faculty;
+use App\Models\semester;
 use App\Models\student;
+use App\Models\subject;
 use App\Models\user1;
 use Illuminate\Http\Request;
 
@@ -299,5 +304,62 @@ class courseController extends Controller
             ];
         });
         return response()->json($formattedCourses,201);
+    }
+    public function addStudentsToCourse($course_id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        $student_ids = $request->input('student_ids');
+
+        $existingStudents = [];
+        $newEntries = [];
+
+        // Attach each student to the course
+        foreach ($student_ids as $student_id) {
+            $existingEntry = course_student::where('course_id', $course_id)
+                ->where('student_id', $student_id)
+                ->first();
+
+            if ($existingEntry) {
+                $existingStudents[] = $student_id;
+            } else {
+                course_student::create([
+                    'course_id' => $course_id,
+                    'student_id' => $student_id,
+                ]);
+                $newEntries[] = $student_id;
+            }
+        }
+
+        // Prepare response data
+        $response = ['message' => 'Students processed successfully.'];
+        if (!empty($existingStudents)) {
+            $response['existing_students'] = $existingStudents;
+        }
+        if (!empty($newEntries)) {
+            $response['new_entries'] = $newEntries;
+        }
+
+        return response()->json($response, 201);
+    }
+
+    //api laays thoong tin cac bang mac dinh
+    public function listFaculty()
+    {
+        $faculty = faculty::query()->get();
+        return response()->json($faculty,201);
+    }
+    public function listClassRoom()
+    {
+        $listClassRoom = classroom::query()->get();
+        return response()->json($listClassRoom,201);
+    }
+    public function listSemester()
+    {
+        $listSemester = semester::query()->get();
+        return response()->json($listSemester,201);
+    }
+    public function listSubject()
+    {
+        $listSubject = subject::query()->get();
+        return response()->json($listSubject,201);
     }
 }

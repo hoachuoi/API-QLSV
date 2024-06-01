@@ -62,6 +62,13 @@ Route::post('courseSearch',[courseController::class,'search']);
 Route::get('course-student/{id}', [courseController::class,'studentofcourse']);//xem tat ca thanh vien trong lop
 Route::post('course-teacher', [courseController::class,'courseofteacher']);
 Route::get('course-of-student/{id}', [courseController::class,'courseOfStudent']);//xem cac lop cua hoc sinh
+Route::post('/course/{course_id}/students', [courseController::class, 'addStudentsToCourse']);
+//api lấy thôgn tin
+Route::get('listFaculty', [courseController::class,'listFaculty']);
+Route::get('listClassRoom', [courseController::class,'listClassRoom']);
+Route::get('listSemester', [courseController::class,'listSemester']);
+Route::get('listSemester', [courseController::class,'listSemester']);
+Route::get('listSubject', [courseController::class,'listSubject']);
 
 
 //atendance
