@@ -71,6 +71,7 @@ Route::get('listSemester', [courseController::class,'listSemester']);
 Route::get('listSubject', [courseController::class,'listSubject']);
 
 
+
 //atendance
 Route::get('/course/{id}/attendance', [attendaceController::class, 'getClassAttendance']);
 Route::post('/attendance/mark', [attendaceController::class, 'markAttendance']);
