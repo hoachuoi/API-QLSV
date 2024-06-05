@@ -67,12 +67,43 @@ class teacherController extends Controller
         ]));
 
         $data = $request->all();
-        $data['userID'] = $a->id;
-        $data['roleID'] = '102';
+        $data['userID'] = 2;
+
+
+        $facultyname = $request->input('facultyname');
+        switch ($facultyname) {
+            case 'FAST':
+                $data['faculty_id'] = 1;
+                break;
+            case 'CNTT':
+                $data['faculty_id'] = 2;
+                break;
+            case 'Điện':
+                $data['faculty_id'] = 3;
+                break;
+            case 'Điện tử viễn thông':
+                $data['faculty_id'] = 4;
+                break;
+            case 'Hóa':
+                $data['faculty_id'] = 5;
+                break;
+            case 'Xây dựng':
+                $data['faculty_id'] = 6;
+                break;
+            case 'Cơ khí':
+                $data['faculty_id']= 7;
+                break;
+            case 'Môi trường':
+                $data['faculty_id'] = 8;
+                break;
+            default:
+                $data['faculty_id']= null; // Hoặc giá trị mặc định nào đó
+            break;
+      }
 
         teacher::create($data);
 
-        return response()->json(['message' => $data]);
+        return response()->json(['message' => $data,"ok"],201);
 
         // Tiếp tục xử lý logic tạo mới bản ghi student ở đây
     }
@@ -92,6 +123,7 @@ class teacherController extends Controller
         'userID' => $teacher->userID,
         'fullName' => $teacher->fullName,
         'teacherID'=>$teacher->teacherID,
+        'faculty_id'=>$teacher->faculty_id,
         'facultyname'=>$teacher->faculty?$teacher->faculty->name:null,
         'hometown'=> $teacher->hometown,
         'dateOfBirth'=>$teacher->date_of_birth,
@@ -122,39 +154,93 @@ class teacherController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    // Tìm giáo viên cần cập nhật
-    $teacher = Teacher::find($id);
+    {
+        // Tìm giáo viên cần cập nhật
+        $teacher = teacher::find($id);
 
-    // Kiểm tra nếu không tìm thấy giáo viên
-    if (!$teacher) {
-        return response()->json(['message' => 'Teacher not found'], 404);
+        // Kiểm tra nếu không tìm thấy giáo viên
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher not found'], 404);
+        }
+
+        // Cập nhật thông tin giáo viên từ dữ liệu yêu cầu
+        $teacher->fullName = $request->input('fullName');
+        $teacher->teacherID = $request->input('teacherID');
+        $teacher->hometown = $request->input('hometown');
+        $teacher->date_of_birth = $request->input('dateOfBirth');
+        $teacher->gender = $request->input('gender');
+        $teacher->avatar = $request->input('avatar');
+        $teacher->educationalLevel = $request->input('educationalLevel');
+        $teacher->nationality = $request->input('nationality');
+
+        // Cập nhật faculty_id dựa trên facultyname
+        $facultyname = $request->input('facultyname');
+        switch ($facultyname) {
+            case 'FAST':
+                $teacher->faculty_id = 1;
+                break;
+            case 'CNTT':
+                $teacher->faculty_id = 2;
+                break;
+            case 'Điện':
+                $teacher->faculty_id = 3;
+                break;
+            case 'Điện tử viễn thông':
+                $teacher->faculty_id = 4;
+                break;
+            case 'Hóa':
+                $teacher->faculty_id = 5;
+                break;
+            case 'Xây dựng':
+                $teacher->faculty_id = 6;
+                break;
+            case 'Cơ khí':
+                $teacher->faculty_id = 7;
+                break;
+            case 'Môi trường':
+                $teacher->faculty_id = 8;
+                break;
+            default:
+                $teacher->faculty_id = null; // Hoặc giá trị mặc định nào đó
+        }
+
+        // Cập nhật thông tin người dùng liên quan nếu có
+        if ($teacher->user) {
+            $newEmail = $request->input('email');
+
+            // Kiểm tra xem email mới có trùng lặp không
+            if ($teacher->user->email !== $newEmail) {
+                $existingUser = user1::where('email', $newEmail)->first();
+                if (!$existingUser) {
+//                    return response()->json(['message' => 'Email already exists'], 409); // HTTP 409 Conflict
+//                } else {
+                    $teacher->user->email = $newEmail;
+                }
+            }
+
+            $teacher->user->phoneNumber = $request->input('phoneNumber');
+            // $teacher->user->roleID = $request->input('roleID');
+
+            // Lưu thông tin người dùng liên quan
+            $teacher->user->save();
+        }
+
+        // Lưu các thay đổi vào cơ sở dữ liệu
+        $teacher->save();
+
+        // Trả về thông tin giáo viên sau khi cập nhật
+        return response()->json($teacher,201);
     }
 
-    // Cập nhật thông tin giáo viên từ dữ liệu yêu cầu
-    $teacher->fullName = $request->input('fullName');
-    $teacher->avatar = $request->input('avatar');
-    $teacher->educationalLevel = $request->input('educationalLevel');
-    // Cập nhật ngày cập nhật
-    $teacher->updated_at = now(); // Giả sử sử dụng thời điểm hiện tại
 
-    // Lưu các thay đổi vào cơ sở dữ liệu
-    $teacher->save();
-
-    // Trả về thông tin giáo viên sau khi cập nhật
-    return response()->json($teacher);
-}
-
-public function search(Request $request)
+    public function search(Request $request)
 {
     // Lấy thông tin tìm kiếm từ yêu cầu
     $keyword = $request->input('search');
 
     // Thực hiện tìm kiếm trong cơ sở dữ liệu
     $teachers = Teacher::where('fullName', 'like', '%' . $keyword . '%')
-                       ->orWhere('avatar', 'like', '%' . $keyword . '%')
                        ->orWhere('educationalLevel', 'like', '%' . $keyword . '%')
-
                        ->get();
 
     // Định dạng kết quả trả về

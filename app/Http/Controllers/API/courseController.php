@@ -192,7 +192,7 @@ class courseController extends Controller
         return response()->json(['message' => 'Resource deleted successfully']);
     }
 
-
+// hiển thị các học sinh trong một lớp học
     public function studentofcourse(string $id)
     {
         // Tìm khóa học theo ID và nạp thông tin về sinh viên đã đăng ký
@@ -204,7 +204,12 @@ class courseController extends Controller
         }
 
         // Lấy danh sách sinh viên trong khóa học
-        $students = $course->students;
+        //$students = $course->students
+        if($course->students){
+            $students = $course->students;
+        } else{
+            return response()->json(['message' => 'Course not found student'], 404);
+        }
 
         // Định dạng thông tin về từng sinh viên
         $formattedStudents = $students->map(function ($student) {

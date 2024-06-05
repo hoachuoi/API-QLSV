@@ -18,7 +18,7 @@ class teacher extends Model
         'teacherID',
         'hometown',
         'date_of_birth',
-        'gender',
+        'gender'
     ];
     public function user()
     {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\faculty;
+use http\QueryString;
 use Illuminate\Http\Request;
 use App\Models\student;
 use App\Models\user1;
@@ -139,6 +141,8 @@ class sudentController extends Controller
         if (!$student) {
             return response()->json(['message' => 'Resource not found'], 404);
         }
+        $father = $student->parents()->where('gender', 'nam')->first();
+        $mother = $student->parents()->where('gender', 'nu')->first();
 
         return response()->json([
             'id' => $student->id,
@@ -168,13 +172,16 @@ class sudentController extends Controller
             'created_at' => $student->user ? $student->user->created_at : null,
             'updated_at' => $student->user ? $student->user->updated_at : null,
 
-            'namemother' => $student->parents && $student->parents->gender == 'nu' ? $student->parents->gender : null,
-            'profesmother' => $student->parents && $student->parents->gender == 'nu' ? $student->parents->professtion : null,
-            'phoneNumbermo' => $student->parents && $student->parents->gender == 'nu' ? $student->parents->phoneNumber : null,
+            'namemother' => $mother?$mother->fullName:"Mồ côi",
+            'profesmother' => $mother?$mother->professtion:null,
+            'phoneNumbermo' => $mother?$mother->phoneNumber:null,
 
-            'namefather' => $student->parents->gender == 'nam' ? $student->parents->fullName : null,
-            '$profesfather' => $student->parents->gender == 'nam' ? $student->parents->professtion : null,
-            'phoneNumberfa' => $student->parents->gender == 'nam' ? $student->parents->phoneNumber : null,
+            'namefather' => $father ? $father->fullName:"Mồ côi" ,
+            'profesfather' => $father?$father->professtion:null ,
+            'phoneNumberfa' => $father?$father->phoneNumber:null ,
+            // Thông tin cha và mẹ
+
+
 
             'roleName' => $student->user && $student->user->role ? $student->user->role->roleName : null,
         ]);
@@ -200,12 +207,14 @@ class sudentController extends Controller
         }
 
         // Lấy dữ liệu từ request và cập nhật thông tin sinh viên
+
         $student->fullName = $request->input('fullName');
         $student->gender = $request->input('gender');
+        $student->studentID = $request->input('studentID');
         $student->dateOfBirth = $request->input('dateOfBirth');
         $student->nickName = $request->input('nickName');
         $student->placeOfBirth = $request->input('placeOfBirth');
-        $student->permanenAddress = $request->input('permanenAddress');
+        $student->permanentAddress = $request->input('permanentAddress');
         $student->avatar = $request->input('avatar');
         $student->nationalIdentityCard = $request->input('nationalIdentityCard');
         $student->ethnicity = $request->input('ethnicity');
@@ -218,7 +227,27 @@ class sudentController extends Controller
 
         // Lưu các thay đổi vào cơ sở dữ liệu
         $student->save();
+        $father = parents::where('studentID', $student->id)
+            ->where('gender', 'nam')
+            ->first();
+        $father ->fullName = $request->input('fullNamefa');
+        $father ->phoneNumber = $request->input('phoneNumberfa');
+        $father ->professtion = $request->input('professtionfa');
+        $father->save();
 
+        $mother = parents::where('studentID', $student->id)
+            ->where('gender', 'nu')
+            ->first();
+        $mother ->fullName = $request->input('fullNameMo');
+        $mother ->phoneNumber = $request->input('phoneNumberMo');
+        $mother ->professtion = $request->input('professtionMo');
+        $mother->save();
+
+        $user = user1::find($student->userID);
+        $user->email = $request->input('email');
+        $user->save();
+
+       // return  response()->json(['fa'=>$father,'mo'=>@$mother,'us'=>$user],201);
         return response()->json($student);
     }
 

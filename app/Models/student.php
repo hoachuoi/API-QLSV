@@ -15,7 +15,7 @@ class student extends Model
         'dateOfBirth',
         'nickName',
         'placeOfBirth',
-        'permanenAddress',
+        'permanentAddress',
         'avatar',
         'nationalIdentityCard',
         'ethnicity',
@@ -42,7 +42,7 @@ class student extends Model
     }
     public function parents()
     {
-        return $this->hasOne(parents::class, 'studentID'); // userID là khóa ngoại trong bảng students
+        return $this->hasMany(parents::class, 'studentID');
     }
     public function courses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
