@@ -12,20 +12,22 @@ class userController extends Controller
      */
    public function index()
 {
-    $users = User1::with(['role', 'student'])->get();
+    $users = User1::with(['role', 'student','teacher','admin'])->get();
     //$user = User1::with(['role', 'student'])
     $formattedUsers = $users->map(function ($user) {
         return [
             'id' => $user->id,
             'username' => $user->username,
             'email' => $user->email,
-            'fullName' => $user->student ? $user->student->fullName : null,
+            'studentName' => $user->student ? $user->student->fullName : null,
+            'teacherName' => $user->teacher ? $user->teacher->fullName : null,
+            'adminName' => $user->admin ? $user->admin->fullname : null,
             'phoneNumber' => $user->phoneNumber,
             'password' => $user->password,
             'roleID' => $user->roleID,
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
-            'roleName' => $user->role ? $user->role->roleName : null,
+            'roleName' => $user->role ? $user->role->rolename : null,
             'studentID'=> $user->student?$user->student->id:null
         ];
     });
@@ -80,7 +82,7 @@ class userController extends Controller
 // }
 public function show(string $id)
 {
-    $user = User1::with(['role', 'student'])->find($id);
+    $user = User1::with(['role', 'student','teacher','admin'])->find($id);
 
     if (!$user) {
         return response()->json(['message' => 'Resource not found'], 404);
@@ -93,7 +95,9 @@ public function show(string $id)
         'phoneNumber' => $user->phoneNumber,
         'password' => $user->password,
         'roleID' => $user->roleID,
-        'fullName' => $user->student ? $user->student->fullName : null,
+        'studentName' => $user->student ? $user->student->fullName : null,
+        'teacherName' => $user->teacher ? $user->teacher->name : null,
+        'adminName' => $user->admin ? $user->admin->fullname : null,
         'created_at' => $user->created_at,
         'updated_at' => $user->updated_at,
         'roleName' => $user->role ? $user->role->roleName : null,
@@ -156,8 +160,6 @@ public function show(string $id)
     $users = User1::where('id', 'like', '%' . $keyword.'%' )
                   ->orWhere('username', 'like', '%' . $keyword . '%')
                    ->orWhere('email', 'like', '%' . $keyword . '%')
-                //   ->orWhere('phoneNumber', 'like', '%' . $keyword . '%')
-                //   ->orWhere('password', 'like', '%' . $keyword . '%')
                    ->orWhere('roleId', 'like' ,'%'. $keyword . '%')
                  ->with('role')
                  ->get();
@@ -174,6 +176,8 @@ public function show(string $id)
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
             'roleName' => $user->role ? $user->role->roleName : null,
+            'studentName' => $user->student ? $user->student->fullName : null,
+            'teacherName' => $user->teacher ? $user->teacher->fullName : null,
         ];
     });
     // Trả về kết quả dưới dạng JSON

@@ -56,12 +56,13 @@ Route::get('course', [courseController::class,'index']);
 //Route::get('product', [ProductController::class, 'index']);
 Route::post('course',[courseController::class,'store']);
 Route::get('course/{id}',[courseController::class,'show']);
+Route::get('course-semester/{semesterId}',[courseController::class,'course']);
 Route::post('course/update/{id}', [courseController::class,'update']);
 Route::delete('course/{id}',[courseController::class,'destroy']);
 Route::post('courseSearch',[courseController::class,'search']);
 Route::get('course-student/{id}', [courseController::class,'studentofcourse']);//xem tat ca thanh vien trong lop
-Route::post('course-teacher', [courseController::class,'courseofteacher']);
-Route::get('course-of-student/{id}', [courseController::class,'courseOfStudent']);//xem cac lop cua hoc sinh
+Route::post('course-teacher', [courseController::class,'courseofteacher']);//xem lop hoc cua giang vien
+Route::get('course-of-student/{id}/{SemesterId}', [courseController::class,'courseOfStudent']);//xem cac lop cua hoc sinh
 Route::post('/course/{course_id}/students', [courseController::class, 'addStudentsToCourse']);
 //api lấy thôgn tin
 Route::get('listFaculty', [courseController::class,'listFaculty']);

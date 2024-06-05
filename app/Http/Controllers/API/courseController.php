@@ -97,6 +97,38 @@ class courseController extends Controller
         // Trả về JSON response
         return response()->json($formattedCourse);
     }
+    public function course(string $semesterId)
+    {
+        // Lấy dữ liệu khóa học với các quan hệ
+        $course = Course::with(['faculty', 'teacher', 'subject', 'semester', 'classroom'])->where('semester_id', $semesterId)->get();
+
+        // Kiểm tra nếu khóa học không tồn tại
+        // Kiểm tra nếu không có khóa học nào
+//        if ($course->isEmpty()) {
+//            return response()->json(['message' => 'Course not found'], 404);
+//        }
+
+        // Định dạng dữ liệu của các khóa học
+        $formattedCourses = $course->map(function ($course) {
+            return [
+                'id' => $course->id,
+                'name' => $course->name,
+                'ML-HP' => $course->IDcourse,
+                'week' => $course->week,
+                'start' => $course->start_time,
+                'end' => $course->end_time,
+                'date_of_week' => $course->date_of_week,
+                'faculty' => $course->faculty->name ?? null,
+                'teacher' => $course->teacher->fullName ?? null,
+                'numberOfCredits' => $course->subject->numberOfCredits ?? null,
+                'semester' => $course->semester->name ?? null,
+                'classroom' => $course->classroom->name ?? null,
+            ];
+        });
+
+        // Trả về JSON response
+        return response()->json($formattedCourses);
+    }
 
 
     /**
@@ -242,7 +274,7 @@ class courseController extends Controller
         return response()->json(['message' => 'OK', 'students' => $formattedStudents], 200);
     }
     //hiển thị tất cả lơp shọc của sinh viên
-    public function courseofstudent(string $id)
+    public function courseofstudent(string $id,string $semesterId)
     {
         // Tìm sinh viên theo ID và nạp thông tin về các khóa học đã đăng ký
         $student = Student::with('courses')->find($id);
@@ -253,7 +285,7 @@ class courseController extends Controller
         }
 
         // Lấy danh sách các khóa học của sinh viên
-        $courses = $student->courses;
+        $courses = $student->courses->where('semester_id', $semesterId);
 
         // Kiểm tra xem sinh viên có khóa học nào không
         if ($courses->isEmpty()) {
@@ -279,15 +311,17 @@ class courseController extends Controller
         });
 
         // Trả về thông tin về các khóa học của sinh viên
-        return response()->json(['message' => 'OK', 'courses' => $formattedCourses], 200);
+        return response()->json(['message' => 'OK', 'courses' => $formattedCourses], 201);
     }
     public function courseofteacher(Request $request)
     {
         // Lấy thông tin tìm kiếm từ yêu cầu
-        $keyword = $request->input('idTeacher');
+        $idteacher = $request->input('idTeacher');
+        $semester = $request->input('idSemester');
 
         // Thực hiện tìm kiếm trong cơ sở dữ liệu
-        $courses = Course::where('teacher_id', 'like', '%' . $keyword . '%')
+        $courses = Course::where('teacher_id',  $idteacher )
+            ->where('semester_id',  $semester)
             ->with(['faculty', 'teacher', 'subject', 'semester', 'classroom'])
             ->get();
 

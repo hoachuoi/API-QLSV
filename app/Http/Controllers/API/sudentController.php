@@ -275,18 +275,10 @@ class sudentController extends Controller
         // Thực hiện tìm kiếm trong cơ sở dữ liệu
         $students = Student::where('id', 'like', '%' . $keyword . '%')
             ->orWhere('fullName', 'like', '%' . $keyword . '%')
-            //->orWhere('gender', 'like', '%' . $keyword . '%')
-            //->orWhere('dateOfBirth', 'like', '%' . $keyword . '%')
             ->orWhere('nickName', 'like', '%' . $keyword . '%')
-            //->orWhere('placeOfBirth', 'like', '%' . $keyword . '%')
-            //->orWhere('permanenAddress', 'like', '%' . $keyword . '%')
-            //->orWhere('avatar', 'like', '%' . $keyword . '%')
             ->orWhere('nationalIdentityCard', 'like', '%' . $keyword . '%')
-            //->orWhere('ethnicity', 'like', '%' . $keyword . '%')
             ->orWhere('religion', 'like', '%' . $keyword . '%')
             ->orWhere('educationalLevel', 'like', '%' . $keyword . '%')
-            //->orWhere('DateOffAdmissionToDTNCS', 'like', '%' . $keyword . '%')
-            //->orWhere('policyBeneficiary', 'like', '%' . $keyword . '%')
             ->orWhere('contactAddress', 'like', '%' . $keyword . '%')
             ->orWhere('hometown', 'like', '%' . $keyword . '%')
             ->get();
@@ -296,11 +288,14 @@ class sudentController extends Controller
             return [
                 'id' => $student->id,
                 'fullName' => $student->fullName,
+                "studentID" => $student->studentID,
+                "email" => $student->user?$student->user->email:null,
+                'phoneNumber' => $student->user ? $student->user->phoneNumber : null,
                 'gender' => $student->gender,
                 'dateOfBirth' => $student->dateOfBirth,
                 'nickName' => $student->nickName,
                 'placeOfBirth' => $student->placeOfBirth,
-                'permanenAddress' => $student->permanenAddress,
+                'permanentAddress' => $student->permanentAddress,
                 'avatar' => $student->avatar,
                 'nationalIdentityCard' => $student->nationalIdentityCard,
                 'ethnicity' => $student->ethnicity,

@@ -24,4 +24,12 @@ class user1 extends Model
     {
         return $this->hasOne(Student::class, 'userID'); // userID là khóa ngoại trong bảng students
     }
+    public function teacher()
+    {
+        return $this->hasOne(teacher::class, 'userID'); // userID là khóa ngoại trong bảng students
+    }
+    public function admin()
+    {
+        return $this->hasOne(admin::class, 'user1_id'); // userID là khóa ngoại trong bảng students
+    }
 }
