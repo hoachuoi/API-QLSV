@@ -10,6 +10,7 @@ use App\Models\faculty;
 use App\Models\semester;
 use App\Models\student;
 use App\Models\subject;
+use App\Models\teacher;
 use App\Models\user1;
 use Illuminate\Http\Request;
 
@@ -30,11 +31,13 @@ class courseController extends Controller
                 'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'date_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name,
                 'teacher' => $course->teacher->fullName,
                 'numberOfCredits' => $course->subject->numberOfCredits,
-                'semester' => $course->name,
+                'id_teacher'=>$course->teacher_id,
+                'subject' => $course->subject->name,
+                'semester' => $course->semester->name,
                 'classroom' => $course->classroom->name,
             ];
         });
@@ -82,31 +85,28 @@ class courseController extends Controller
         $formattedCourse = [
             'id' => $course->id,
             'name' => $course->name,
-            'ML-HP' => $course->IDcourse,
+            'IDcourse' => $course->IDcourse,
             'week'=>$course->week,
             'start' => $course->start_time,
             'end' => $course->end_time,
-            'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+            'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
             'faculty' => $course->faculty->name ?? null,
             'teacher' => $course->teacher->fullName ?? null,
             'numberOfCredits' => $course->subject->numberOfCredits ?? null,
             'semester' => $course->semester->name ?? null,
             'classroom' => $course->classroom->name ?? null,
+            'subject' => $course->subject->name,
         ];
 
         // Trả về JSON response
-        return response()->json($formattedCourse);
+       return response()->json($formattedCourse);
+        //return response()->json($course);
     }
+    //hieenr thij lopws theo hoc ki
     public function course(string $semesterId)
     {
         // Lấy dữ liệu khóa học với các quan hệ
         $course = Course::with(['faculty', 'teacher', 'subject', 'semester', 'classroom'])->where('semester_id', $semesterId)->get();
-
-        // Kiểm tra nếu khóa học không tồn tại
-        // Kiểm tra nếu không có khóa học nào
-//        if ($course->isEmpty()) {
-//            return response()->json(['message' => 'Course not found'], 404);
-//        }
 
         // Định dạng dữ liệu của các khóa học
         $formattedCourses = $course->map(function ($course) {
@@ -117,11 +117,14 @@ class courseController extends Controller
                 'week' => $course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'date_of_week' => $course->date_of_week,
+                'day_of_week' => $course->day_of_week,
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,
                 'semester' => $course->semester->name ?? null,
+                'id_teacher'=>$course->teacher_id,
+                'subject' => $course->subject->name,
+               // 'semester' => $course->semester->name,
                 'classroom' => $course->classroom->name ?? null,
             ];
         });
@@ -149,26 +152,35 @@ class courseController extends Controller
 
         // Kiểm tra sự tồn tại của bản ghi
         if (!$course) {
-            return response()->json(['message' => 'Course not found'], 404);
+            return response()->json(['message' => 'Course not found'], 202);
         }
+
+        $faculty = faculty::query()->where('name',  $request->input('faculty'))->first();
+        $teacher = teacher::query()->where('fullName', $request->input('teacher'))->first();
+        $subject = subject::query()->where('name', $request->input('subject'))->first();
+        $semester =  semester::query()->where('name', $request->input('semester'))->first();
+        $classroom =  classroom::query()->where('name', $request->input('classroom'))->first();
 
         // Lấy dữ liệu từ request và cập nhật thông tin khóa học
         $course->name = $request->input('name');
         $course->IDcourse = $request->input('IDcourse');
-        $course->start_time = $request->input('start_time');
+        $course->start_time = $request->input('start');
         $course->week= $request->input('week');
-        $course->end_time = $request->input('end_time');
+        $course->end_time = $request->input('end');
         $course->day_of_week = $request->input('day_of_week');
-        $course->faculty_id = $request->input('faculty_id');
-        $course->teacher_id = $request->input('teacher_id');
-        $course->subject_id = $request->input('subject_id');
-        $course->semester_id = $request->input('semester_id');
-        $course->classroom_id = $request->input('classroom_id');
+        $course->faculty_id = $faculty->id;
+        $course->teacher_id = $teacher->id;
+        $course->subject_id = $subject->id;
+        $course->semester_id =$semester->id;
+        $course->classroom_id = $classroom->id;
+
+
         // Lưu các thay đổi vào cơ sở dữ liệu
-        $course->save();
+       $course->save();
 
         // Trả về phản hồi JSON
         return response()->json($course);
+
     }
     public function search(Request $request)
     {
@@ -191,7 +203,7 @@ class courseController extends Controller
                 'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,
@@ -301,7 +313,7 @@ class courseController extends Controller
                 'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,
@@ -334,7 +346,7 @@ class courseController extends Controller
                 'week'=>$course->week,
                 'start' => $course->start_time,
                 'end' => $course->end_time,
-                'date_of_week' => $course->date_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
+                'day_of_week' => $course->day_of_week, // Đảm bảo bạn sử dụng đúng tên thuộc tính
                 'faculty' => $course->faculty->name ?? null,
                 'teacher' => $course->teacher->fullName ?? null,
                 'numberOfCredits' => $course->subject->numberOfCredits ?? null,

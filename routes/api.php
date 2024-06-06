@@ -32,6 +32,7 @@ Route::get('user/{id}',[userController::class,'show']);
 Route::post('user/update/{id}', [userController::class,'update']);
 Route::delete('user/{id}',[userController::class,'destroy']);
 Route::post('userSearch',[userController::class,'search']);
+Route::post('userSearchHead',[userController::class,'searchhead']);
 
 //API sutudent table
 Route::get('student', [sudentController::class,'index']);
@@ -48,6 +49,7 @@ Route::get('teacher', [teacherController::class,'index']);
 Route::post('teacher',[teacherController::class,'store']);
 Route::get('teacher/{id}',[teacherController::class,'show']);
 Route::post('teacher/update/{id}', [teacherController::class,'update']);
+Route::post('teacher/updatePass/{id}', [teacherController::class,'updatepass']);
 Route::delete('teacher/{id}',[teacherController::class,'destroy']);
 Route::post('teacherSearch',[teacherController::class,'search']);
 
@@ -76,6 +78,7 @@ Route::get('listSubject', [courseController::class,'listSubject']);
 //atendance
 Route::get('/course/{id}/attendance', [attendaceController::class, 'getClassAttendance']);
 Route::post('/attendance/mark', [attendaceController::class, 'markAttendance']);
+Route::get('/course-check/{teacher_id}/{semester_id}', [attendaceController::class, 'checkCourseAttendance']);//Kiểmtra xem thời diểm hiện tại giáo viên có lớp học phần nào không
 
 
 Route::post('detectFaces', [FaceDemo::class,'detectFaces']);

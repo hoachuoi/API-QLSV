@@ -232,6 +232,36 @@ class teacherController extends Controller
         return response()->json($teacher,201);
     }
 
+    // cap nhat mat khau giang vien
+    public function updatepass(Request $request, string $id)
+    {
+        // Tìm giáo viên cần cập nhật
+        $teacher = teacher::find($id);
+
+        // Kiểm tra nếu không tìm thấy giáo viên
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher not found'], 404);
+        }
+        $user = user1::find($teacher->userID);
+
+        $oldPass = $request->input('oldPass');
+        $newPass = $request->input('newPass');
+        $confirm = $request->input('confirmNewPass');
+
+        if($user->password == $oldPass)
+        {
+            if($confirm==$newPass) {
+                $user->password = $newPass;
+                $user->save();
+            }else return response()->json(['mess'=>"New pass not same Confirm pass"], 404);
+        } else return response()->json(['mess'=>"Old pass incorect"], 404);
+
+
+
+        // Trả về thông tin giáo viên sau khi cập nhật
+        return response()->json(['mess'=>'update sucsess',$user],201);
+    }
+
 
     public function search(Request $request)
 {
@@ -275,7 +305,7 @@ class teacherController extends Controller
         try {
             // Xóa giáo viên
             $teacher->delete();
-            return response()->json(['message' => 'Teacher deleted successfully']);
+            return response()->json(['message' => 'Teacher deleted successfully'],201);
         } catch (\Exception $e) {
             // Xử lý lỗi nếu có
             return response()->json(['message' => 'Failed to delete teacher'], 500);

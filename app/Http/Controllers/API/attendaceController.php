@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\attendance;
+use App\Models\course;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Rfc4122\Validator;
@@ -40,8 +42,7 @@ class attendaceController extends Controller
                 'total_permission' => $student->total_permission,
             ];
         });
-
-        return response()->json($response);
+        return response()->json($response,201);
     }
 
     // Phương thức để điểm danh sinh viên
@@ -59,7 +60,6 @@ class attendaceController extends Controller
 //            return response()->json($validator->errors(), 400);
 //        }
         $attendancesData = $request->attendances;
-
         foreach ($attendancesData as $attendanceData) {
             $date = $attendanceData['date'];
             $dayOfWeek = date('l', strtotime($date)); // Lấy ngày trong tuần từ ngày học
@@ -76,8 +76,42 @@ class attendaceController extends Controller
                 ]
             );
         }
-
-        return response()->json(['message' => 'Attendance marked successfully'], 200);
+        return response()->json(['message' => 'Attendance marked successfully'], 201);
     }
+
+
+
+    public  function checkCourseAttendance(string $teacher_id, string $semester_id)
+    {
+        // Lấy thời gian hiện tại và ngày trong tuần hiện tại
+        $currentDateTime = Carbon::now();
+        $currentDayOfWeek = $currentDateTime->dayOfWeek; // 0 (Chủ Nhật) đến 6 (Thứ Bảy)
+        $currentTime = $currentDateTime->format('H:i:s');
+
+        // Lấy các khóa học của giảng viên trong học kỳ cụ thể
+        $courses = Course::where('teacher_id', $teacher_id)
+            ->where('semester_id', $semester_id)
+            ->where('day_of_week', $currentDayOfWeek)
+            ->get();
+
+        // Kiểm tra xem có khóa học nào diễn ra vào thời gian hiện tại không
+        foreach ($courses as $course) {
+            if ($currentTime >= $course->start_time && $currentTime <= $course->end_time) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'The teacher has a class at the current time.',
+                    'course' => $course
+                ]);
+            }
+        }
+
+        // Nếu không có lớp học nào khớp
+        return response()->json([
+            'status' => 'success',
+            'message' => 'The teacher does not have a class at the current time.',
+            'course' => $course
+        ]);
+    }
+
 
 }

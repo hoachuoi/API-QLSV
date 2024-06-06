@@ -184,4 +184,56 @@ public function show(string $id)
     return response()->json($formattedUsers);
 }
 
+    public function searchhead(Request $request)
+    {
+        // Lấy thông tin tìm kiếm từ yêu cầu
+        // Lấy từ khóa từ request
+        $keyword = $request->input('keyword');
+
+        // Xây dựng truy vấn
+        $query = user1::query();
+
+        if ($keyword) {
+            $query->whereHas('role', function($q) use ($keyword) {
+                $q->where('roleName', 'like', '%' . $keyword . '%');
+            })->orWhereHas('student', function($q) use ($keyword) {
+                $q->where('fullName', 'like', '%' . $keyword . '%');
+            })->orWhereHas('teacher', function($q) use ($keyword) {
+                $q->where('fullName', 'like', '%' . $keyword . '%');
+            })->orWhereHas('admin', function($q) use ($keyword) {
+                $q->where('fullname', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        // Thực hiện truy vấn
+        $users = $query->get();
+
+        //return response()->json($users);
+
+
+        //Định dạng kết quả trả về
+        $formattedUsers = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'phoneNumber' => $user->phoneNumber,
+                'password' => $user->password,
+                'roleID' => $user->roleID,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'roleName' => $user->role ? $user->role->roleName : null,
+                'studentName' => $user->student ? $user->student->fullName : null,
+                'teacherName' => $user->teacher ? $user->teacher->fullName : null,
+                'adminName' => $user->admin ? $user->admin->fullname : null,
+
+                'studentID' => $user->student ? $user->student->id : null,
+                'teacherID' => $user->teacher ? $user->teacher->id : null,
+                'adminID' => $user->admin ? $user->admin->id : null
+            ];
+        });
+        // Trả về kết quả dưới dạng JSON
+        return response()->json($formattedUsers);
+    }
+
 }
