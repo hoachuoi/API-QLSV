@@ -154,7 +154,6 @@ class courseController extends Controller
         if (!$course) {
             return response()->json(['message' => 'Course not found'], 202);
         }
-
         $faculty = faculty::query()->where('name',  $request->input('faculty'))->first();
         $teacher = teacher::query()->where('fullName', $request->input('teacher'))->first();
         $subject = subject::query()->where('name', $request->input('subject'))->first();
